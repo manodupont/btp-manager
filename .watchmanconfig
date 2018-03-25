@@ -1,1 +1,17 @@
-{}
+root=true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+[{*.js, *.json}]
+insert_final_newline = true
+max_line_length = 100
+quote_type = double
+curly_bracket_next_line = false
+spaces_around_operators = true
+indent_brace_style = K&R

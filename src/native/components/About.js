@@ -1,26 +1,73 @@
-import React from 'react';
-import { Container, Content, Text, H1, H2, H3, Button } from 'native-base';
-import Spacer from './Spacer';
+/* eslint-disable object-curly-spacing,semi */
+import React, {Component} from 'react';
+import {Platform, View, StyleSheet} from 'react-native';
+import {Container, Content, Text, H1, H2, H3, Button} from 'native-base';
+// import Spacer from './Spacer';
+import {Constants, Location, Permissions, MapView} from 'expo';
 
-const About = () => (
-  <Container>
-    <Content padder>
-      <Spacer size={30} />
-      <H1>Heading 1</H1>
-      <Spacer size={10} />
-      <Text>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </Text>
+class About extends Component {
+  constructor() {
+    super();
 
-      <Spacer size={30} />
-      <H2>Heading 2</H2>
-      <Spacer size={10} />
-      <Text>Elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </Text>
+    this.state = {
+      location: null,
+      errorMessage: null,
+    };
+  }
 
-      <Spacer size={30} />
-      <H3>Heading 3</H3>
-      <Spacer size={10} />
-      <Text>Elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </Text>
-    </Content>
-  </Container>
-);
+  componentWillMount() {
+    if (Platform.OS === 'android' && !Constants.isDevice) {
+      this.setState({
+        errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
+      });
+    } else {
+      this._getLocationAsync();
+    }
+  }
+
+  async _getLocationAsync() {
+    const {status} = await Permissions.askAsync(Permissions.LOCATION);
+    if (status !== 'granted') {
+      this.setState({
+        errorMessage: 'Permission to access location was denied',
+      });
+    }
+
+    const location = await Location.getCurrentPositionAsync({enableHighAccuracy: true});
+    this.setState({location});
+  }
+
+  setMarkers() {
+    const {location} = this.state;
+
+    return (
+      <MapView.Marker
+        key={1}
+        coordinate={{latitude: location.coords.latitude, longitude: location.coords.longitude}}
+        title="Me"
+        description="Current Position"
+      />);
+  }
+
+  render() {
+    return (
+      <Container>
+        {this.state.location && this.state.location.coords &&
+        <MapView
+          style={{flex: 1}}
+          initialRegion={{
+            latitude: this.state.location.coords.latitude,
+            longitude: this.state.location.coords.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+          showsMyLocationButton={true}
+          showsUserLocation={true}
+        />
+        }
+      </Container>
+    );
+  }
+}
 
 export default About;

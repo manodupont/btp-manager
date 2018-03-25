@@ -1,10 +1,10 @@
 import ErrorMessages from '../constants/errors';
 import statusMessage from './status';
-import { Firebase, FirebaseRef } from '../lib/firebase';
+import {Firebase, FirebaseRef} from '../lib/firebase';
 
 /**
-  * Sign Up to Firebase
-  */
+ * Sign Up to Firebase
+ */
 export function signUp(formData) {
   const {
     email,
@@ -16,12 +16,12 @@ export function signUp(formData) {
 
   return dispatch => new Promise(async (resolve, reject) => {
     // Validation checks
-    if (!firstName) return reject({ message: ErrorMessages.missingFirstName });
-    if (!lastName) return reject({ message: ErrorMessages.missingLastName });
-    if (!email) return reject({ message: ErrorMessages.missingEmail });
-    if (!password) return reject({ message: ErrorMessages.missingPassword });
-    if (!password2) return reject({ message: ErrorMessages.missingPassword });
-    if (password !== password2) return reject({ message: ErrorMessages.passwordsDontMatch });
+    if (!firstName) return reject({message: ErrorMessages.missingFirstName});
+    if (!lastName) return reject({message: ErrorMessages.missingLastName});
+    if (!email) return reject({message: ErrorMessages.missingEmail});
+    if (!password) return reject({message: ErrorMessages.missingPassword});
+    if (!password2) return reject({message: ErrorMessages.missingPassword});
+    if (password !== password2) return reject({message: ErrorMessages.passwordsDontMatch});
 
     await statusMessage(dispatch, 'loading', true);
 
@@ -39,12 +39,15 @@ export function signUp(formData) {
           }).then(() => statusMessage(dispatch, 'loading', false).then(resolve));
         }
       }).catch(reject);
-  }).catch(async (err) => { await statusMessage(dispatch, 'error', err.message); throw err.message; });
+  }).catch(async (err) => {
+    await statusMessage(dispatch, 'error', err.message);
+    throw err.message;
+  });
 }
 
 /**
-  * Get this User's Details
-  */
+ * Get this User's Details
+ */
 function getUserData(dispatch) {
   const UID = (
     FirebaseRef
@@ -84,8 +87,8 @@ export function getMemberData() {
 }
 
 /**
-  * Login to Firebase with Email/Password
-  */
+ * Login to Firebase with Email/Password
+ */
 export function login(formData) {
   const {
     email,
@@ -96,8 +99,8 @@ export function login(formData) {
     await statusMessage(dispatch, 'loading', true);
 
     // Validation checks
-    if (!email) return reject({ message: ErrorMessages.missingEmail });
-    if (!password) return reject({ message: ErrorMessages.missingPassword });
+    if (!email) return reject({message: ErrorMessages.missingEmail});
+    if (!password) return reject({message: ErrorMessages.missingPassword});
 
     // Go to Firebase
     return Firebase.auth()
@@ -131,32 +134,38 @@ export function login(formData) {
               data: res,
             }));
           }).catch(reject));
-  }).catch(async (err) => { await statusMessage(dispatch, 'error', err.message); throw err.message; });
+  }).catch(async (err) => {
+    await statusMessage(dispatch, 'error', err.message);
+    throw err.message;
+  });
 }
 
 /**
-  * Reset Password
-  */
+ * Reset Password
+ */
 export function resetPassword(formData) {
-  const { email } = formData;
+  const {email} = formData;
 
   return dispatch => new Promise(async (resolve, reject) => {
     // Validation checks
-    if (!email) return reject({ message: ErrorMessages.missingEmail });
+    if (!email) return reject({message: ErrorMessages.missingEmail});
 
     await statusMessage(dispatch, 'loading', true);
 
     // Go to Firebase
     return Firebase.auth()
       .sendPasswordResetEmail(email)
-      .then(() => statusMessage(dispatch, 'loading', false).then(resolve(dispatch({ type: 'USER_RESET' }))))
+      .then(() => statusMessage(dispatch, 'loading', false).then(resolve(dispatch({type: 'USER_RESET'}))))
       .catch(reject);
-  }).catch(async (err) => { await statusMessage(dispatch, 'error', err.message); throw err.message; });
+  }).catch(async (err) => {
+    await statusMessage(dispatch, 'error', err.message);
+    throw err.message;
+  });
 }
 
 /**
-  * Update Profile
-  */
+ * Update Profile
+ */
 export function updateProfile(formData) {
   const {
     email,
@@ -171,24 +180,24 @@ export function updateProfile(formData) {
   return dispatch => new Promise(async (resolve, reject) => {
     // Are they a user?
     const UID = Firebase.auth().currentUser.uid;
-    if (!UID) return reject({ message: ErrorMessages.missingFirstName });
+    if (!UID) return reject({message: ErrorMessages.missingFirstName});
 
     // Validation checks
-    if (!firstName) return reject({ message: ErrorMessages.missingFirstName });
-    if (!lastName) return reject({ message: ErrorMessages.missingLastName });
+    if (!firstName) return reject({message: ErrorMessages.missingFirstName});
+    if (!lastName) return reject({message: ErrorMessages.missingLastName});
     if (changeEmail) {
-      if (!email) return reject({ message: ErrorMessages.missingEmail });
+      if (!email) return reject({message: ErrorMessages.missingEmail});
     }
     if (changePassword) {
-      if (!password) return reject({ message: ErrorMessages.missingPassword });
-      if (!password2) return reject({ message: ErrorMessages.missingPassword });
-      if (password !== password2) return reject({ message: ErrorMessages.passwordsDontMatch });
+      if (!password) return reject({message: ErrorMessages.missingPassword});
+      if (!password2) return reject({message: ErrorMessages.missingPassword});
+      if (password !== password2) return reject({message: ErrorMessages.passwordsDontMatch});
     }
 
     await statusMessage(dispatch, 'loading', true);
 
     // Go to Firebase
-    return FirebaseRef.child(`users/${UID}`).update({ firstName, lastName })
+    return FirebaseRef.child(`users/${UID}`).update({firstName, lastName})
       .then(async () => {
         // Update Email address
         if (changeEmail) {
@@ -205,18 +214,24 @@ export function updateProfile(formData) {
         await statusMessage(dispatch, 'success', 'Profile Updated');
         resolve();
       }).catch(reject);
-  }).catch(async (err) => { await statusMessage(dispatch, 'error', err.message); throw err.message; });
+  }).catch(async (err) => {
+    await statusMessage(dispatch, 'error', err.message);
+    throw err.message;
+  });
 }
 
 /**
-  * Logout
-  */
+ * Logout
+ */
 export function logout() {
   return dispatch => new Promise((resolve, reject) => {
     Firebase.auth().signOut()
       .then(() => {
-        dispatch({ type: 'USER_RESET' });
+        dispatch({type: 'USER_RESET'});
         setTimeout(resolve, 1000); // Resolve after 1s so that user sees a message
       }).catch(reject);
-  }).catch(async (err) => { await statusMessage(dispatch, 'error', err.message); throw err.message; });
+  }).catch(async (err) => {
+    await statusMessage(dispatch, 'error', err.message);
+    throw err.message;
+  });
 }
